@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'utils/api_config.dart'; // ✅ corregido: ahora apunta bien a utils
-import 'screens/login_screen.dart'; // ✅ corregido: apunta a screens
+import 'utils/api_config.dart';
+import 'screens/login_screen.dart';
+import 'utils/user_session.dart'; // ✅ importamos la clase de sesión
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -17,7 +18,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> fetchUserData() async {
     setState(() => _loading = true);
-    final url = Uri.parse('${getBaseUrl()}/api/persona/1');
+
+    // ✅ usamos el idPersona real de la sesión
+    final url = Uri.parse('${getBaseUrl()}/api/persona/${UserSession.idPersona}');
     final response = await http.get(url);
 
     setState(() => _loading = false);
@@ -75,6 +78,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final response = await http.delete(url);
 
       if (response.statusCode == 200) {
+        // ✅ limpiamos la sesión al cerrar
+        UserSession.clear();
+
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const LoginScreen()),
               (route) => false,

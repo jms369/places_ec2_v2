@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-// import 'forgot_password_screen.dart'; // ❌ Eliminado porque ya no queremos redirigir a recuperar contraseña
-import 'register_screen.dart'; // ✅ Nuevo import para redirigir al formulario de registro
+import 'register_screen.dart';
 import '../utils/api_config.dart';
-import '../places_cupertino.dart'; // ✅ Import necesario para navegar al Home correctamente
+import '../utils/user_session.dart'; // ✅ nuevo import
+import '../places_cupertino.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> login() async {
     setState(() => _loading = true);
 
-    final url = Uri.parse('${getBaseUrl()}/api/login'); // 🔧 mantiene la conexión al backend
+    final url = Uri.parse('${getBaseUrl()}/api/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -35,13 +35,21 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _loading = false);
 
     final data = jsonDecode(response.body);
+
+    // ✅ Debug: mostramos la respuesta completa del backend
+    print('Respuesta completa del backend: $data');
+
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login exitoso ✅')),
       );
-      print('Token: ${data['token']}');
-      // 🔄 CAMBIO: antes usaba pushReplacementNamed('/home')
-      // Ahora usamos pushAndRemoveUntil para eliminar todas las rutas anteriores
+
+      // ✅ Guardamos datos de sesión
+      UserSession.idPersona = data['id_personas'];
+      UserSession.token = data['token'];
+
+      print('Login correcto, id_personas=${UserSession.idPersona}'); // Debug para saber si esta guardando correctamente el id
+
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => PlacesCupertino()),
             (route) => false,
@@ -60,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
         title: const Text('Iniciar sesión'),
         centerTitle: true,
       ),
-      backgroundColor: const Color(0xFF5A4FCF), // 💠 azul con toque morado
+      backgroundColor: const Color(0xFF5A4FCF),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -106,13 +114,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {
-                          // ❌ Antes: abría ForgotPasswordScreen
-                          // ✅ Ahora: abre RegisterScreen para crear un nuevo usuario
                           Navigator.of(context).push(
                             MaterialPageRoute(builder: (_) => const RegisterScreen()),
                           );
                         },
-                        child: const Text('¿No tienes cuenta? Regístrate aquí'), // ✅ Texto cambiado para reflejar la nueva acción
+                        child: const Text('¿No tienes cuenta? Regístrate aquí'),
                       ),
                     ),
                     const SizedBox(height: 8),

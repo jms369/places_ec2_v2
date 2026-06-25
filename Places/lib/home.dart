@@ -29,7 +29,7 @@ class MyHome extends StatelessWidget {
     // ✅ Caja de comentarios global
     final comentariosBox = Container(
       margin: const EdgeInsets.only(top: 20, left: 30, right: 30),
-      child: ComentariosGlobal(idPersona: 1), // ⚠️ reemplaza con el id del usuario logueado
+      child: const ComentariosGlobal(), //aqui se cambio el id_persona 1
     );
 
     final listView = ListView(

@@ -28,7 +28,7 @@ router.post('/login', (req, res) => {
     if (!contrasenaValida) return res.status(401).json({ message: 'Contraseña incorrecta' });
 
     const token = jwt.sign({ id: usuario.id_personas }, 'mi_secreto_jwt', { expiresIn: '1h' });
-    res.json({ message: 'Login exitoso', token });
+    res.json({ message: 'Login exitoso', token, id_personas: usuario.id_personas });  // agregar este cambios en el ec2 -> id_personas: usuario.id_personas
   });
 });
 
